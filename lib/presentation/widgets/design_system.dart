@@ -9,43 +9,49 @@ class SkyGradients {
       return LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: b == Brightness.dark
-            ? [const Color(0xFF0F172A), const Color(0xFF1E293B), const Color(0xFF164E63)]
-            : [const Color(0xFF4158D0), const Color(0xFFC850C0), const Color(0xFFFFCC70)],
+    colors: b == Brightness.dark
+      ? [const Color(0xFF1F102B), const Color(0xFF2A183A), const Color(0xFF3B1E54)]
+      : [const Color(0xFFA18CD1), const Color(0xFFFBC2EB)],
       );
     }
     if (c.contains('cloud')) {
       return LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: b == Brightness.dark
-            ? [const Color(0xFF0F172A), const Color(0xFF334155)]
-            : [const Color(0xFF89F7FE), const Color(0xFF66A6FF)],
+    colors: b == Brightness.dark
+      ? [const Color(0xFF111111), const Color(0xFF2A2A2A)]
+      : [const Color(0xFFEDE9E3), const Color(0xFFD6CCC2)],
       );
     }
     if (c.contains('snow')) {
       return LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: b == Brightness.dark
-            ? [const Color(0xFF0B1020), const Color(0xFF1F2937), const Color(0xFF4B5563)]
-            : [const Color(0xFFE0EAFC), const Color(0xFFCFDEF3)],
+    colors: b == Brightness.dark
+      ? [const Color(0xFF0B0B0B), const Color(0xFF1E1E1E), const Color(0xFF2A2A2A)]
+      : [const Color(0xFFFFF9F1), const Color(0xFFFFFFFF)],
       );
     }
     if (c.contains('thunder')) {
-      return const LinearGradient(
+    return b == Brightness.dark
+      ? const LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364)],
+        colors: [Color(0xFF1E1E1E), Color(0xFF3D1F1F)],
+      )
+      : const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF3E2C41), Color(0xFFFEC260)],
       );
     }
     // clear / default
     return LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: b == Brightness.dark
-          ? [const Color(0xFF0B1020), const Color(0xFF1E3A8A)]
-          : [const Color(0xFF36D1DC), const Color(0xFF5B86E5)],
+    colors: b == Brightness.dark
+      ? [const Color(0xFF0B1020), const Color(0xFF3B0764)]
+      : [const Color(0xFFFFE259), const Color(0xFFFFA751)],
     );
   }
 }

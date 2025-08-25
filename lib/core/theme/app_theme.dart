@@ -4,7 +4,8 @@ class AppTheme {
   AppTheme._();
 
   static final ColorScheme _lightScheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF4F46E5),
+  // Warm sunny palette for vibrant light mode
+  seedColor: const Color(0xFFFFA726), // Amber Orange
     brightness: Brightness.light,
   );
   static final ColorScheme _darkScheme = ColorScheme.fromSeed(
@@ -16,11 +17,18 @@ class AppTheme {
         useMaterial3: true,
         colorScheme: _lightScheme,
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        scaffoldBackgroundColor: const Color(0xFFF7F8FC),
+        // Warm, subtle background that matches sunny gradients
+        scaffoldBackgroundColor: const Color(0xFFFEF9F1),
+        appBarTheme: const AppBarTheme(
+          surfaceTintColor: Colors.transparent,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.black87,
+          elevation: 0,
+        ),
         cardTheme: const CardThemeData(
           elevation: 0,
-          // Color and shape handled in custom glassCard
         ),
+        dividerColor: const Color(0x1F000000),
       );
 
   static ThemeData get dark => ThemeData(

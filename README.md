@@ -1,3 +1,18 @@
+# Premium Weather App (Flutter)
+
+Modernized Flutter Weather app with Riverpod, GoRouter, clean-ish architecture, theming, and animations.
+
+- Riverpod for state
+- GoRouter for navigation
+- Lottie background, glass cards, smooth transitions
+- Dark/Light/System themes
+- Units: °C / °F
+- Manage cities: add, reorder, remove
+
+Run:
+
+1. Add your OpenWeather API key in `lib/secrets.dart` (already present).
+2. Install deps and run tests.
 
 # Weather App
 

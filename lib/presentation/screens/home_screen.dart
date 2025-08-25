@@ -2,116 +2,193 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:lottie/lottie.dart';
 import '../../data/repositories/weather_repository.dart';
 import '../providers/settings_provider.dart';
+import '../providers/ui_state_providers.dart';
 import '../widgets/ui_helpers.dart';
+import '../widgets/animated_sky.dart';
+import '../widgets/design_system.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = ref.read(selectedCityIndexProvider);
+    _pageController = PageController(viewportFraction: .9, initialPage: initial);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = this.ref;
     final settings = ref.watch(settingsProvider);
+    final cities = settings.savedCities;
+
+    // Determine top background by the first city's condition when available
+    final firstWeather = cities.isNotEmpty ? ref.watch(cityWeatherProvider(cities.first)) : null;
+    final cond = firstWeather?.maybeWhen(data: (d) => d.$1.condition, orElse: () => 'Clear') ?? 'Clear';
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Weather'),
-        centerTitle: true,
-        actions: [
-          IconButton(onPressed: () => context.push('/search'), icon: const Icon(Icons.search_rounded)),
-          IconButton(onPressed: () => context.push('/settings'), icon: const Icon(Icons.settings_rounded)),
-        ],
-      ),
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.topCenter,
-            child: Opacity(
-              opacity: 0.35,
-              child: Lottie.asset('assets/animations/weather_bg.json', repeat: true, fit: BoxFit.cover),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+      body: AnimatedSkyBackground(
+        condition: cond,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(DateFormat('EEEE, MMM d').format(DateTime.now()), style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.1,
+                Row(
+                  children: [
+                    Text('Weather', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, color: Colors.white)),
+                    const Spacer(),
+                    IconButton(
+                      style: IconButton.styleFrom(backgroundColor: Colors.white.withOpacity(.12)),
+                      onPressed: () => context.push('/search'),
+                      icon: const Icon(Icons.search_rounded, color: Colors.white),
                     ),
-                    itemCount: settings.savedCities.length,
-                    itemBuilder: (context, index) {
-                      final city = settings.savedCities[index];
-                      final async = ref.watch(cityWeatherProvider(city));
-                      return InkWell(
-                        borderRadius: BorderRadius.circular(24),
-                        onTap: () => context.push('/city/$city'),
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      style: IconButton.styleFrom(backgroundColor: Colors.white.withOpacity(.12)),
+                      onPressed: () => context.push('/settings'),
+                      icon: const Icon(Icons.settings_rounded, color: Colors.white),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(DateFormat('EEEE, MMM d').format(DateTime.now()), style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white70)),
+                const SizedBox(height: 18),
+
+                // Hero carousel of cities
+                if (cities.isNotEmpty)
+                  SizedBox(
+                    height: 240,
+                    child: Scrollbar(
+                      controller: _pageController,
+                      thumbVisibility: true,
+                      interactive: true,
+                      thickness: 4,
+                      radius: const Radius.circular(8),
+                      child: PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: (i) => ref.read(selectedCityIndexProvider.notifier).state = i,
+                      itemCount: cities.length,
+                      itemBuilder: (context, index) {
+                        final city = cities[index];
+                        final async = ref.watch(cityWeatherProvider(city));
+                        final isFirst = index == 0;
+                        final isLast = index == cities.length - 1;
+                        return AnimatedPadding(
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeOut,
+                          padding: EdgeInsets.fromLTRB(
+                            isFirst ? 16 : 12,
+                            16,
+                            isLast ? 16 : 12,
+                            16,
+                          ),
                           child: async.when(
                             data: (tuple) {
                               final current = tuple.$1;
                               final k = current.tempK;
                               final temp = settings.unit == TempUnit.celsius ? '${kToC(k).round()}°C' : '${kToF(k).round()}°F';
-                              return Hero(
-                                tag: 'card_$city',
-                                child: glassCard(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Icon(weatherIcon(current.condition), size: 28),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Text(city, style: Theme.of(context).textTheme.titleMedium, overflow: TextOverflow.ellipsis),
-                                          ),
-                                        ],
-                                      ),
-                                      const Spacer(),
-                                      Text(temp, style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w700)),
-                                      const SizedBox(height: 6),
-                                      Text(current.condition, style: Theme.of(context).textTheme.bodyMedium),
-                                    ],
-                                  ),
-                                ),
+                              return WeatherHeroCard(
+                                city: city,
+                                condition: current.condition,
+                                temperature: temp,
+                                leadingIcon: Icon(weatherIcon(current.condition), size: 42, color: Colors.white),
+                                onTap: () => context.push('/city/$city'),
                               );
                             },
-                            loading: () => glassCard(
-                              child: const Center(child: CircularProgressIndicator.adaptive()),
+                            loading: () => FrostedGlass(
+                              child: const SizedBox(height: 220, child: Center(child: CircularProgressIndicator.adaptive())),
                             ),
-                            error: (e, st) => glassCard(
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.error_outline),
-                                    const SizedBox(height: 8),
-                                    Text('Failed: ${e.toString()}', textAlign: TextAlign.center),
-                                  ],
-                                ),
+                            error: (e, st) => FrostedGlass(
+                              child: SizedBox(
+                                height: 220,
+                                child: Center(child: Text('Failed: $e', style: const TextStyle(color: Colors.white))),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
+                    ),
+                  )
+                else
+                  FrostedGlass(
+                    child: SizedBox(
+                      height: 200,
+                      child: Center(
+                        child: Text('Add a city to begin', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white)),
+                      ),
+                    ),
                   ),
-                ),
+
+                const SizedBox(height: 10),
+
+                const SizedBox(height: 14),
+
+                // Secondary grid of snapshots
+                if (cities.length > 1)
+                  Expanded(
+                    child: ListView.separated(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      itemBuilder: (context, i) {
+                        final city = cities[i];
+                        final async = ref.watch(cityWeatherProvider(city));
+                        return async.when(
+                          data: (tuple) {
+                            final k = tuple.$1.tempK;
+                            final t = settings.unit == TempUnit.celsius ? '${kToC(k).round()}°' : '${kToF(k).round()}°';
+                            return GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => context.push('/city/$city'),
+                              child: glassCard(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                child: Row(
+                                  children: [
+                                    Icon(weatherIcon(tuple.$1.condition), color: Colors.white, size: 24),
+                                    const SizedBox(width: 12),
+                                    Expanded(child: Text(city, style: const TextStyle(color: Colors.white))),
+                                    Text(t, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          loading: () => glassCard(child: const SizedBox(height: 56, child: Center(child: CircularProgressIndicator.adaptive()))),
+                          error: (e, st) => glassCard(child: Padding(padding: const EdgeInsets.all(12), child: Text('Failed: $e'))),
+                        );
+                      },
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemCount: cities.length,
+                    ),
+                  )
+                else
+                  const Spacer(),
               ],
             ),
           ),
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/search'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
         label: const Text('Add city'),
         icon: const Icon(Icons.add_location_alt_outlined),
       ),

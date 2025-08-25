@@ -18,12 +18,20 @@ class WeatherRepository {
     }
     final list = (map['list'] as List).cast<Map<String, dynamic>>();
     final first = list.first;
+    final cityObj = (map['city'] as Map<String, dynamic>);
+    final sunrise = DateTime.fromMillisecondsSinceEpoch(((cityObj['sunrise'] as num) * 1000).toInt(), isUtc: true);
+    final sunset = DateTime.fromMillisecondsSinceEpoch(((cityObj['sunset'] as num) * 1000).toInt(), isUtc: true);
+    final tz = (cityObj['timezone'] as num?)?.toInt() ?? 0;
     final current = CurrentWeather(
       tempK: (first['main']['temp'] as num).toDouble(),
+      feelsLikeK: (first['main']['feels_like'] as num?)?.toDouble() ?? (first['main']['temp'] as num).toDouble(),
       condition: first['weather'][0]['main'].toString(),
       humidity: (first['main']['humidity'] as num).toInt(),
       wind: (first['wind']['speed'] as num).toDouble(),
       pressure: (first['main']['pressure'] as num).toInt(),
+      sunrise: sunrise,
+      sunset: sunset,
+      timezoneOffsetSec: tz,
     );
     final hourly = list.take(8).map((e) => HourlyPoint(
           time: DateTime.parse(e['dt_txt'].toString()),

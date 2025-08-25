@@ -1,10 +1,24 @@
 class CurrentWeather {
   final double tempK;
+  final double feelsLikeK;
   final String condition;
   final int humidity;
   final double wind;
   final int pressure;
-  CurrentWeather({required this.tempK, required this.condition, required this.humidity, required this.wind, required this.pressure});
+  final DateTime sunrise;
+  final DateTime sunset;
+  final int timezoneOffsetSec;
+  CurrentWeather({
+    required this.tempK,
+    required this.feelsLikeK,
+    required this.condition,
+    required this.humidity,
+    required this.wind,
+    required this.pressure,
+    required this.sunrise,
+    required this.sunset,
+    required this.timezoneOffsetSec,
+  });
 }
 
 class HourlyPoint {

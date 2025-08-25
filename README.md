@@ -1,71 +1,132 @@
-# Premium Weather App (Flutter)
+# Weather (Flutter)
 
-Modernized Flutter Weather app with Riverpod, GoRouter, clean-ish architecture, theming, and animations.
-
-- Riverpod for state
-- GoRouter for navigation
-- Lottie background, glass cards, smooth transitions
-- Dark/Light/System themes
-- Units: °C / °F
-- Manage cities: add, reorder, remove
-
-Run:
-
-1. Add your OpenWeather API key in `lib/secrets.dart` (already present).
-2. Install deps and run tests.
-
-# Weather App
-
-## Overview
-This Flutter app fetches weather data from an external API and displays it to the user.
+A polished, multi-platform weather app built with Flutter and Riverpod. Search and save cities, see current conditions, hourly trends, and a 7‑day summary with a modern, glass/gradient UI and subtle Lottie animations.
 
 ## Features
-- Display current weather information based on user location or selected city.
-- Show detailed weather forecast for the upcoming days.
-- Allow users to refresh weather data manually.
 
-## Screens
-### Home Screen
-The home screen displays the current weather information and allows the user to refresh the data.
+- Add, view, and manage multiple cities (reorder and remove)
+- Current conditions with feels-like, humidity, wind, pressure, sunrise/sunset
+- Hourly forecast (next periods from OpenWeather 3‑hour forecast)
+- 7‑day summary (derived from 3‑hour forecast buckets)
+- Temperature units: °C/°F
+- Theme: Light, Dark, or System
+- Animated, condition-aware backgrounds (Lottie + gradients)
+- Persistent settings and cities via SharedPreferences
 
-#### Widgets Used
-- `FutureBuilder` to handle asynchronous fetching of weather data.
-- `Column`, `Row`, and `Container` widgets to structure the UI.
-- Custom widgets for displaying weather information (temperature, description, etc.).
+## Tech stack
 
-#### API Integration
-- Uses `http` package to fetch weather data from an API (e.g., OpenWeatherMap).
-- Handles JSON parsing to extract relevant weather information.
+- Flutter 3 (Dart >= 3.4)
+- State: flutter_riverpod
+- Routing: go_router
+- Storage: shared_preferences
+- Networking: http
+- UI: weather_icons, lottie, flutter_svg, Material 3
 
-#### Error Handling
-- Displays error messages if there are issues with fetching data or if the API request fails.
-- Provides a way for the user to retry fetching data.
+## API key (OpenWeather)
 
-### Forecast Screen
-The forecast screen shows the weather forecast for the upcoming days.
+This app uses OpenWeather APIs. Provide your API key before running.
 
-#### Widgets Used
-- `ListView` to display a scrollable list of forecasted weather.
-- Custom widgets for displaying each day's weather forecast.
+Quick start (current project setup):
+- Edit `lib/secrets.dart` and set your key:
+	- `const openWeatherApiKey = 'YOUR_API_KEY';`
+- Do not commit real keys to public repos. Consider `.gitignore` or using `--dart-define` in production.
 
-#### API Integration
-- Similar to the Home Screen, fetches forecast data from the same API.
-- Parses JSON to extract forecast information.
+Note: Daily forecast here is approximated by grouping OpenWeather 3‑hour forecast entries per day (no One Call lat/lon used).
 
-#### Navigation
-- Allows the user to navigate between the Home and Forecast screens using bottom navigation or tabs.
+## Getting started
 
+Prereqs:
+- Flutter SDK installed and `flutter doctor` passing
+- An OpenWeather API key
 
-## Conclusion
-This Markdown file outlines the structure and functionality of a simple weather app built using Flutter. It covers the basic UI components, API integration for fetching weather data, error handling, and code snippet for data retrieval. Further enhancements could include more detailed weather displays, user settings, or integration with additional APIs for richer data.
+Install deps:
 
+```powershell
+flutter pub get
+```
 
-In this example:
+Run (choose any supported device):
 
-- **Overview** describes the purpose of the app.
-- **Features** outline key functionalities.
-- **Screens** section details the Home Screen and Forecast Screen, explaining the UI components and API integrations.
-- **Code Snippet** provides a basic example of how to fetch weather data using the `http` package and parse JSON data.
-- **Conclusion** summarizes the content and suggests potential future enhancements.
+```powershell
+# Windows desktop
+flutter run -d windows
 
-Replace placeholders like `YOUR_API_KEY` with your actual API key when implementing your app. This Markdown file can serve as documentation for developers or as a reference for further development and improvement of your Flutter weather app.
+# Android (emulator or device)
+flutter run -d android
+
+# iOS (simulator, on macOS)
+flutter run -d ios
+
+# Web (Chrome)
+flutter run -d chrome
+```
+
+Build releases:
+
+```powershell
+# Android APK (release)
+flutter build apk --release
+
+# Android App Bundle
+flutter build appbundle --release
+
+# iOS (requires Xcode/macOS)
+flutter build ipa --release
+
+# Windows
+flutter build windows --release
+
+# Web
+flutter build web --release
+```
+
+## Project structure (high level)
+
+- `lib/`
+	- `main.dart`: App entry, theming, router
+	- `core/`
+		- `router/app_router.dart`: Routes (home, city, search, settings)
+		- `theme/app_theme.dart`: Material 3 light/dark themes
+	- `data/`
+		- `models/weather_models.dart`: Weather DTOs
+		- `repositories/weather_repository.dart`: OpenWeather calls and transforms
+	- `presentation/`
+		- `screens/`: Home, City details, Search, Settings
+		- `providers/`: Theme, settings, UI state
+		- `widgets/`: Animated background, glass cards, icons, helpers
+	- `secrets.dart`: OpenWeather API key (replace with your key)
+- `assets/`: Lottie animation and app icon
+
+## Configuration notes
+
+- Launcher icons are configured via `flutter_launcher_icons` (see `pubspec.yaml`).
+- Saved preferences keys: theme_mode_v1, unit_v1, cities_v1.
+- Initial default city: Kolkata (can be removed in Settings).
+
+## Testing
+
+Run default widget tests:
+
+```powershell
+flutter test
+```
+
+## Troubleshooting
+
+- Network/API errors: verify your OpenWeather key and free tier limits.
+- City not found: ensure correct spelling and availability in OpenWeather.
+- Android build issues: run `flutter clean; flutter pub get` and ensure Android SDK/NDK installed.
+- iOS: open the iOS workspace in Xcode after `pod install` (Flutter handles this) and ensure signing is configured.
+
+## Privacy
+
+The app calls OpenWeather APIs over HTTPS. No personal data is collected; saved cities and preferences are stored locally on device.
+
+## Credits
+
+- Weather data: OpenWeather (https://openweathermap.org/)
+- Icons/animations: weather_icons, Lottie files
+
+---
+
+Made with Flutter and Riverpod.

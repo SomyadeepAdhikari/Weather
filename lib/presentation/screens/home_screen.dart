@@ -52,19 +52,54 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Weather', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, color: Colors.white)),
-                    const Spacer(),
-                    IconButton(
-                      style: IconButton.styleFrom(backgroundColor: Colors.white.withOpacity(.12)),
-                      onPressed: () => context.push('/search'),
-                      icon: const Icon(Icons.search_rounded, color: Colors.white),
+                    Text(
+                      'Weather',
+                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: -1.0,
+                      ),
                     ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      style: IconButton.styleFrom(backgroundColor: Colors.white.withOpacity(.12)),
-                      onPressed: () => context.push('/settings'),
-                      icon: const Icon(Icons.settings_rounded, color: Colors.white),
+                    Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: Colors.white.withOpacity(0.15),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: IconButton(
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                            ),
+                            onPressed: () => context.push('/search'),
+                            icon: const Icon(Icons.search_rounded, color: Colors.white, size: 22),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: Colors.white.withOpacity(0.15),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: IconButton(
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                            ),
+                            onPressed: () => context.push('/settings'),
+                            icon: const Icon(Icons.tune_rounded, color: Colors.white, size: 22),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -185,12 +220,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/search'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        label: const Text('Add city'),
-        icon: const Icon(Icons.add_location_alt_outlined),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: LinearGradient(
+            colors: [
+              Colors.white.withOpacity(0.25),
+              Colors.white.withOpacity(0.15),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.3),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: () => context.push('/search'),
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          label: Text(
+            'Add city',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+          ),
+          icon: const Icon(Icons.add_location_alt_outlined, size: 22),
+        ),
       ),
     );
   }

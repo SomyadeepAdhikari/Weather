@@ -26,39 +26,157 @@ IconData weatherIcon(String cond) {
   }
 }
 
-Widget glassCard({required Widget child, EdgeInsetsGeometry padding = const EdgeInsets.all(16), double radius = 24}) {
-  return Container(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(radius),
-      gradient: LinearGradient(
-        colors: [
-          Colors.white.withOpacity(0.16),
-          Colors.white.withOpacity(0.06),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-  border: Border.all(color: Colors.white.withOpacity(0.18)),
-    ),
-    child: Padding(padding: padding, child: child),
+/// Legacy glassCard function for backward compatibility
+Widget glassCard({
+  required Widget child, 
+  EdgeInsetsGeometry padding = const EdgeInsets.all(16), 
+  double radius = 24
+}) {
+  return FrostedGlass(
+    radius: radius,
+    padding: padding,
+    child: child,
   );
 }
 
-// Accent pill used for labels and chips
-class AccentPill extends StatelessWidget {
-  final String text;
-  final Color color;
-  const AccentPill(this.text, {super.key, required this.color});
+/// Enhanced info item widget with modern styling
+class EnhancedInfoItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color? accentColor;
+  
+  const EnhancedInfoItem({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.accentColor,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(99),
-        gradient: LinearGradient(colors: [color.withOpacity(.18), color.withOpacity(.06)]),
-        border: Border.all(color: Colors.white.withOpacity(0.12)),
+    return ModernInfoCard(
+      icon: icon,
+      label: label,
+      value: value,
+      accentColor: accentColor,
+      isVertical: true,
+    );
+  }
+}
+
+/// Animated temperature display widget
+class AnimatedTemperature extends StatefulWidget {
+  final String temperature;
+  final TextStyle? style;
+  final Duration animationDuration;
+  
+  const AnimatedTemperature({
+    super.key,
+    required this.temperature,
+    this.style,
+    this.animationDuration = const Duration(milliseconds: 800),
+  });
+
+  @override
+  State<AnimatedTemperature> createState() => _AnimatedTemperatureState();
+}
+
+class _AnimatedTemperatureState extends State<AnimatedTemperature>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: widget.animationDuration,
+      vsync: this,
+    );
+    
+    _scaleAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.elasticOut,
+    ));
+    
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeIn,
+    ));
+    
+    _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(AnimatedTemperature oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.temperature != widget.temperature) {
+      _controller.reset();
+      _controller.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: Text(
+              widget.temperature,
+              style: widget.style,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Gradient icon widget for weather conditions
+class GradientIcon extends StatelessWidget {
+  final IconData icon;
+  final double size;
+  final List<Color> colors;
+  
+  const GradientIcon({
+    super.key,
+    required this.icon,
+    this.size = 24,
+    this.colors = const [Colors.white, Colors.white70],
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+      shaderCallback: (bounds) => LinearGradient(
+        colors: colors,
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(bounds),
+      child: Icon(
+        icon,
+        size: size,
+        color: Colors.white,
       ),
-      child: Text(text, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color.lighten(.2))),
     );
   }
 }

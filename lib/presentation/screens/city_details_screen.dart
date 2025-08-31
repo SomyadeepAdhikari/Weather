@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -47,87 +48,82 @@ class CityDetailsScreen extends ConsumerWidget {
                           leadingIcon: Icon(weatherIcon(c.condition), size: 48, color: Colors.white),
                         ),
                         const SizedBox(height: 16),
-                        Text('Today details', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white)),
-                        const SizedBox(height: 10),
-                        FrostedGlass(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.thermostat_rounded, color: Colors.white),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text('Feels like', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70)),
-                                  ),
-                                  Text(
-                                    settings.unit == TempUnit.celsius ? '${kToC(c.feelsLikeK).round()}°C' : '${kToF(c.feelsLikeK).round()}°F',
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                                  ),
-                                ],
+                        Text('Today details', style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        )),
+                        const SizedBox(height: 16),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(24),
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.white.withOpacity(0.2),
+                                Colors.white.withOpacity(0.05),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(24),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  children: [
+                                    _buildDetailRow(
+                                      context,
+                                      Icons.thermostat_rounded,
+                                      'Feels like',
+                                      settings.unit == TempUnit.celsius 
+                                        ? '${kToC(c.feelsLikeK).round()}°C' 
+                                        : '${kToF(c.feelsLikeK).round()}°F',
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildDetailRow(
+                                      context,
+                                      Icons.water_drop_rounded,
+                                      'Humidity',
+                                      '${c.humidity}%',
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildDetailRow(
+                                      context,
+                                      Icons.air_rounded,
+                                      'Wind',
+                                      '${c.wind.toStringAsFixed(1)} m/s',
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildDetailRow(
+                                      context,
+                                      Icons.speed_rounded,
+                                      'Pressure',
+                                      '${c.pressure} hPa',
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildDetailRow(
+                                      context,
+                                      Icons.wb_sunny_rounded,
+                                      'Sunrise',
+                                      DateFormat('h:mm a').format(c.sunrise.toUtc().add(Duration(seconds: c.timezoneOffsetSec))),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildDetailRow(
+                                      context,
+                                      Icons.nights_stay_rounded,
+                                      'Sunset',
+                                      DateFormat('h:mm a').format(c.sunset.toUtc().add(Duration(seconds: c.timezoneOffsetSec))),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const Divider(height: 18, color: Colors.white24),
-                              Row(
-                                children: [
-                                  const Icon(Icons.water_drop_rounded, color: Colors.white),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text('Humidity', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70)),
-                                  ),
-                                  Text('${c.humidity}%', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  const Icon(Icons.air_rounded, color: Colors.white),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text('Wind', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70)),
-                                  ),
-                                  Text('${c.wind.toStringAsFixed(1)} m/s', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  const Icon(Icons.speed_rounded, color: Colors.white),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text('Pressure', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70)),
-                                  ),
-                                  Text('${c.pressure} hPa', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  const Icon(Icons.wb_sunny_rounded, color: Colors.white),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text('Sunrise', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70)),
-                                  ),
-                                  Text(
-                                    DateFormat('h:mm a').format(c.sunrise.toUtc().add(Duration(seconds: c.timezoneOffsetSec))),
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  const Icon(Icons.nights_stay_rounded, color: Colors.white),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text('Sunset', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70)),
-                                  ),
-                                  Text(
-                                    DateFormat('h:mm a').format(c.sunset.toUtc().add(Duration(seconds: c.timezoneOffsetSec))),
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -206,4 +202,40 @@ class CityDetailsScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildDetailRow(BuildContext context, IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.white.withOpacity(0.2),
+                Colors.white.withOpacity(0.1),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: Colors.white, size: 20),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.white70,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
 }
